@@ -1,0 +1,75 @@
+﻿Experiment No: 5
+Construct an expression tree from the given prefix expression eg +--a*bc/def and traverse it using postorder traversal (non recursive). 
+-------------------------------------------------------------------------------------------------------------------
+Code:
+#include <iostream>
+#include <stack>
+#include <string>
+using namespace std;
+struct Node {
+    char data;
+    Node* left;
+    Node* right;
+};
+Node* createNode(char data) {
+    Node* newNode = new Node();
+    newNode->data = data;
+    newNode->left = newNode->right = nullptr;
+    return newNode;
+}
+bool isOperator(char c) {
+    return (c == '+' || c == '-' || c == '*' || c == '/');
+}
+Node* constructTreeFromPrefix(const string& expression) {
+    stack<Node*> s;
+    Node *temp, *temp1, *temp2;
+    for (int i = expression.length() - 1; i >= 0; --i) { // Reversed iteration for prefix expression
+        if (!isOperator(expression[i])) {
+            temp = createNode(expression[i]);
+            s.push(temp);
+        } else {
+            temp = createNode(expression[i]);
+            temp1 = s.top(); s.pop();
+            temp2 = s.top(); s.pop();
+            temp->left = temp1;
+            temp->right = temp2;
+            s.push(temp);
+        }
+    }
+    return s.top();
+}
+void postorderTraversal(Node* root) {
+    if (root == nullptr) return;
+    stack<Node*> s;
+    Node* current = root;
+    do {
+        while (current) {
+            if (current->right)
+                s.push(current->right);
+            s.push(current);
+            current = current->left;
+        }
+        current = s.top(); s.pop();
+        if (current->right && !s.empty() && s.top() == current->right) {
+            s.pop();
+            s.push(current);
+            current = current->right;
+        } else {
+            cout << current->data << " ";
+            current = nullptr;
+        }
+    } while (!s.empty());
+}
+int main() {
+    string expression;
+    cout << "Enter the prefix expression: ";
+    getline(cin, expression);
+    Node* root = constructTreeFromPrefix(expression);
+    cout << "Postorder traversal: ";
+    postorderTraversal(root);
+    return 0;
+}
+Output:
+
+
+
